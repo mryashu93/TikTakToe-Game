@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block title %}Admin Dashboard — Tik Tak Toe{% endblock %}
+{% block head %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+{% endblock %}
+{% block content %}
+<div class="page-container admin-dashboard">
+  <div class="admin-header">
+    <h1>📊 Research Dashboard</h1>
+    <div class="export-buttons">
+      <a href="{% url 'admin.export_games' %}" class="btn-outline">⬇ Export Games CSV</a>
+      <a href="{% url 'admin.export_surveys' %}" class="btn-outline">⬇ Export Surveys CSV</a>
+    </div>
+  </div>
+
+  <!-- Summary cards injected by JS -->
+  <div class="stats-grid" id="summary-cards"></div>
+
+  <!-- Charts -->
+  <div class="charts-grid">
+    <div class="chart-card">
+      <h3>Win Rate by AI Level</h3>
+      <canvas id="winRateChart"></canvas>
+    </div>
+    <div class="chart-card">
+      <h3>Avg Duration (seconds) by Level</h3>
+      <canvas id="durationChart"></canvas>
+    </div>
+    <div class="chart-card">
+      <h3>Survey Averages by Level (Likert 1–5)</h3>
+      <canvas id="surveyChart"></canvas>
+    </div>
+    <div class="chart-card">
+      <h3>Games Played by Level</h3>
+      <canvas id="gamesChart"></canvas>
+    </div>
+  </div>
+
+  <!-- Raw table -->
+  <h2>Breakdown Table</h2>
+  <table class="leaderboard-table" id="stats-table">
+    <thead>
+      <tr>
+        <th>Level</th><th>Games</th><th>Wins</th><th>Losses</th><th>Draws</th>
+        <th>Win %</th><th>Avg Duration</th><th>Avg Moves</th>
+        <th>Ease</th><th>Challenge</th><th>Engagement</th><th>Replay Intent</th><th>Survey Count</th>
+      </tr>
+    </thead>
+    <tbody id="stats-tbody"></tbody>
+  </table>
+</div>
+{% endblock %}
+{% block scripts %}
+{% load static %}
+<script src="{% static 'js/admin.js' %}"></script>
+{% endblock %}

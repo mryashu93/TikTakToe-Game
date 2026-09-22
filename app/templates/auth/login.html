@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}Login — Tik Tak Toe{% endblock %}
+{% block content %}
+<div class="auth-card">
+  <h1>Login</h1>
+  <form method="post" novalidate>
+    {% csrf_token %}
+    <div class="form-group">
+      <label for="username">Username</label>
+      <input id="username" name="username" class="form-input" value="{{ request.POST.username|default:'' }}" />
+      {% if errors.username %}<span class="form-error">{{ errors.username }}</span>{% endif %}
+    </div>
+    <div class="form-group">
+      <label for="password">Password</label>
+      <input id="password" name="password" type="password" class="form-input" />
+    </div>
+    {% if errors.general %}<span class="form-error">{{ errors.general }}</span>{% endif %}
+    <button type="submit" class="btn-primary btn-full">Login</button>
+  </form>
+  <p class="auth-alt">No account? <a href="{% url 'auth.register' %}">Register</a> or <a href="{% url 'auth.guest' %}">play as guest</a>.</p>
+</div>
+{% endblock %}

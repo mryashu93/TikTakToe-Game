@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}Leaderboard — Tik Tak Toe{% endblock %}
+{% block content %}
+<div class="page-container">
+  <h1>🏆 Leaderboard</h1>
+  <p class="page-sub">Top players by wins (registered accounts only)</p>
+  {% if users %}
+  <table class="leaderboard-table">
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Player</th>
+        <th>Wins</th>
+        <th>Losses</th>
+        <th>Draws</th>
+        <th>Games</th>
+        <th>Win %</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for u in users %}
+      <tr class="{% if request.user.is_authenticated and u.id == request.user.id %}highlight-row{% endif %}">
+        <td>{{ forloop.counter }}</td>
+        <td>{{ u.username }}</td>
+        <td class="wins">{{ u.wins }}</td>
+        <td>{{ u.losses }}</td>
+        <td>{{ u.draws }}</td>
+        <td>{{ u.total_games }}</td>
+        <td>
+          {% if u.total_games > 0 %}
+            {% widthratio u.wins u.total_games 100 %}%
+          {% else %}—{% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p class="empty-state">No games played yet. Be the first!</p>
+  {% endif %}
+</div>
+{% endblock %}

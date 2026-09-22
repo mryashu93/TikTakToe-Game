@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block title %}Tik Tak Toe — Home{% endblock %}
+{% block content %}
+<section class="hero">
+  <div class="hero-content">
+    <h1 class="hero-title">Tik Tak Toe</h1>
+    <p class="hero-sub">A research platform exploring AI difficulty &amp; player engagement</p>
+    {% if user.is_authenticated %}
+      <div class="hero-buttons">
+        <a href="{% url 'game.play' %}" class="btn-primary btn-lg">▶ Play vs AI</a>
+        <a href="{% url 'game.pvp' %}" class="btn-outline btn-lg">👥 Play vs Friend</a>
+      </div>
+    {% else %}
+      <div class="hero-buttons">
+        <a href="{% url 'auth.register' %}" class="btn-primary btn-lg">Get Started</a>
+        <a href="{% url 'auth.guest' %}" class="btn-ghost btn-lg">Quick Play (Guest)</a>
+        <a href="{% url 'auth.login' %}" class="btn-outline btn-lg">Login</a>
+      </div>
+    {% endif %}
+  </div>
+</section>
+
+<section class="features">
+  <div class="feature-card">
+    <span class="feature-icon">🤖</span>
+    <h3>3 AI Levels</h3>
+    <p>Easy random play, medium heuristics, and unbeatable Minimax Hard AI.</p>
+  </div>
+  <div class="feature-card">
+    <span class="feature-icon">⚡</span>
+    <h3>Real-Time PvP</h3>
+    <p>Challenge a friend live using a 5-character room code via WebSockets.</p>
+  </div>
+  <div class="feature-card">
+    <span class="feature-icon">📊</span>
+    <h3>Research Data</h3>
+    <p>Every game logged. Post-game survey captures engagement & challenge ratings.</p>
+  </div>
+  <div class="feature-card">
+    <span class="feature-icon">🏆</span>
+    <h3>Achievements</h3>
+    <p>Earn badges — from First Victory to Stalemate Master (draw vs Hard AI).</p>
+  </div>
+</section>
+{% endblock %}

@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+{% block title %}Play vs AI — Tik Tak Toe{% endblock %}
+{% block content %}
+<div class="game-container">
+  <!-- Settings Panel -->
+  <div class="game-settings" id="settings-panel">
+    <h2>Game Settings</h2>
+    <div class="setting-group">
+      <label>AI Difficulty</label>
+      <div class="radio-group">
+        <label><input type="radio" name="level" value="easy" checked /> 🎲 Easy</label>
+        <label><input type="radio" name="level" value="medium" /> 🧠 Medium</label>
+        <label><input type="radio" name="level" value="hard" /> 💀 Hard</label>
+      </div>
+    </div>
+    <div class="setting-group">
+      <label>Your Symbol</label>
+      <div class="radio-group">
+        <label><input type="radio" name="symbol" value="X" checked /> ✖ X (goes first)</label>
+        <label><input type="radio" name="symbol" value="O" /> ⭕ O</label>
+      </div>
+    </div>
+    <button class="btn-primary btn-lg" id="start-btn">Start Game</button>
+  </div>
+
+  <!-- Game Panel -->
+  <div class="game-panel hidden" id="game-panel">
+    <div class="game-status" id="status-bar">Your turn!</div>
+    <div class="board" id="board">
+      {% for i in board_cells %}
+        <div class="cell" data-index="{{ i }}"></div>
+      {% endfor %}
+    </div>
+    <div class="game-info">
+      <span id="level-badge" class="level-badge"></span>
+      <span id="symbol-badge"></span>
+    </div>
+    <button class="btn-outline" id="new-game-btn">🔄 New Game</button>
+  </div>
+</div>
+
+<!-- Survey Modal -->
+<div class="modal-overlay hidden" id="survey-overlay">
+  <div class="modal">
+    <h2>Quick Survey 📋</h2>
+    <p>Help our research! Rate your experience (1 = Strongly Disagree, 5 = Strongly Agree)</p>
+    <form id="survey-form">
+      <input type="hidden" id="survey-game-id" />
+      <div class="likert-group">
+        <label>The game was easy to use</label>
+        <div class="likert-scale" data-field="ease_of_use"></div>
+      </div>
+      <div class="likert-group">
+        <label>The AI was appropriately challenging</label>
+        <div class="likert-scale" data-field="challenge"></div>
+      </div>
+      <div class="likert-group">
+        <label>The game was engaging</label>
+        <div class="likert-scale" data-field="engagement"></div>
+      </div>
+      <div class="likert-group">
+        <label>I would play again</label>
+        <div class="likert-scale" data-field="replay_intent"></div>
+      </div>
+      <button type="submit" class="btn-primary btn-full">Submit Survey</button>
+      <button type="button" class="btn-ghost btn-full" id="skip-survey-btn">Skip</button>
+    </form>
+  </div>
+</div>
+
+<!-- Achievement Toast -->
+<div class="achievement-toast hidden" id="achievement-toast"></div>
+{% endblock %}
+{% block scripts %}
+{% load static %}
+<script src="{% static 'js/play.js' %}"></script>
+{% endblock %}

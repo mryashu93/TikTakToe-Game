@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block title %}PvP — Tik Tak Toe{% endblock %}
+{% block content %}
+<div class="game-container">
+  <!-- Lobby -->
+  <div id="pvp-lobby">
+    <h2>Real-Time PvP</h2>
+    <p>Create a room and share the code, or enter a friend's code to join.</p>
+    <div class="pvp-actions">
+      <button class="btn-primary btn-lg" id="create-room-btn">🏠 Create Room</button>
+      <div class="pvp-join">
+        <input type="text" id="room-code-input" maxlength="5" placeholder="Enter code" class="form-input code-input" />
+        <button class="btn-outline btn-lg" id="join-room-btn">🚪 Join Room</button>
+      </div>
+    </div>
+    <div id="room-created-info" class="room-info hidden">
+      <p>Share this code with your opponent:</p>
+      <div class="room-code-display" id="room-code-display"></div>
+      <p class="waiting-text">⏳ Waiting for opponent to join…</p>
+    </div>
+  </div>
+
+  <!-- Game Panel -->
+  <div class="game-panel hidden" id="pvp-game-panel">
+    <div class="pvp-header">
+      <span id="pvp-x-label" class="player-label x-label">X</span>
+      <span class="vs-label">vs</span>
+      <span id="pvp-o-label" class="player-label o-label">O</span>
+    </div>
+    <div class="game-status" id="pvp-status">Waiting…</div>
+    <div class="board" id="pvp-board">
+      {% for i in board_cells %}
+        <div class="cell" data-index="{{ i }}"></div>
+      {% endfor %}
+    </div>
+    <button class="btn-outline" id="pvp-leave-btn">Leave Room</button>
+  </div>
+</div>
+{% endblock %}
+{% block scripts %}
+{% load static %}
+<script src="{% static 'js/vendor/socket.io.min.js' %}"></script>
+<script src="{% static 'js/pvp.js' %}"></script>
+{% endblock %}

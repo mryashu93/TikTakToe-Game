@@ -1,0 +1,51 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{% block title %}Tik Tak Toe{% endblock %}</title>
+  <link rel="stylesheet" href="{% static 'css/style.css' %}" />
+  {% block head %}{% endblock %}
+</head>
+<body>
+  <nav class="navbar">
+    <a href="{% url 'game.index' %}" class="nav-brand">🎮 Tik Tak Toe</a>
+    <div class="nav-links">
+      {% if user.is_authenticated %}
+        <a href="{% url 'game.play' %}">vs AI</a>
+        <a href="{% url 'game.pvp' %}">PvP</a>
+        <a href="{% url 'game.leaderboard' %}">Leaderboard</a>
+        <a href="{% url 'game.profile' %}">{{ user.username }}</a>
+        {% if user.is_admin %}
+          <a href="{% url 'admin.dashboard' %}" class="btn-admin">Admin</a>
+        {% endif %}
+        <a href="{% url 'auth.logout' %}" class="btn-outline">Logout</a>
+      {% else %}
+        <a href="{% url 'game.leaderboard' %}">Leaderboard</a>
+        <a href="{% url 'auth.login' %}" class="btn-outline">Login</a>
+        <a href="{% url 'auth.register' %}" class="btn-primary">Register</a>
+        <a href="{% url 'auth.guest' %}" class="btn-ghost">Play as Guest</a>
+      {% endif %}
+    </div>
+  </nav>
+
+  <div class="flash-container">
+    {% if messages %}
+      {% for message in messages %}
+        <div class="flash flash-{{ message.tags }}">{{ message }}</div>
+      {% endfor %}
+    {% endif %}
+  </div>
+
+  <main class="main-content">
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer class="site-footer">
+    <p>Tik Tak Toe Research Project — GH Raisoni College of Engineering &amp; Management, Jalgaon</p>
+  </footer>
+
+  {% block scripts %}{% endblock %}
+</body>
+</html>

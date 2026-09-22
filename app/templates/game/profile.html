@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block title %}Profile — {{ user.username }}{% endblock %}
+{% block content %}
+<div class="page-container">
+  <div class="profile-header">
+    <h1>👤 {{ user.username }}</h1>
+    {% if user.is_guest %}
+      <span class="badge badge-guest">Guest</span>
+    {% endif %}
+  </div>
+
+  <div class="stats-grid">
+    <div class="stat-card wins">
+      <span class="stat-number">{{ user.wins }}</span>
+      <span class="stat-label">Wins</span>
+    </div>
+    <div class="stat-card losses">
+      <span class="stat-number">{{ user.losses }}</span>
+      <span class="stat-label">Losses</span>
+    </div>
+    <div class="stat-card draws">
+      <span class="stat-number">{{ user.draws }}</span>
+      <span class="stat-label">Draws</span>
+    </div>
+    <div class="stat-card total">
+      <span class="stat-number">{{ user.total_games }}</span>
+      <span class="stat-label">Games</span>
+    </div>
+  </div>
+
+  <section class="achievements-section">
+    <h2>🎖️ Achievements</h2>
+    {% if earned_badges %}
+    <div class="badge-grid">
+      {% for badge in earned_badges %}
+        <div class="achievement-badge earned">
+          <span class="badge-icon">{{ badge.icon }}</span>
+          <span class="badge-name">{{ badge.name }}</span>
+          <span class="badge-desc">{{ badge.description }}</span>
+        </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+    <!-- Show locked badges -->
+    <div class="badge-grid">
+      {% for badge in locked_badges %}
+        <div class="achievement-badge locked">
+          <span class="badge-icon">🔒</span>
+          <span class="badge-name">{{ badge.name }}</span>
+          <span class="badge-desc">{{ badge.description }}</span>
+        </div>
+      {% endfor %}
+    </div>
+  </section>
+</div>
+{% endblock %}
