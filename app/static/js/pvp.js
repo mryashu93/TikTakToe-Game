@@ -1,10 +1,12 @@
 /* ===================================================
-   pvp.js — Real-time PvP via Socket.IO
+   pvp.js — Real-time PvP via Django Channels WebSocket
    =================================================== */
 
 const SYMBOLS = { X: '✖', O: '⭕' };
 
-const socket = io();
+// Connect to WebSocket
+const wsScheme = window.location.protocol === 'https:' ? 'wss' : 'ws';
+const socket = new WebSocket(`${wsScheme}://${window.location.host}/ws/pvp/`);
 
 let mySymbol     = null;
 let myRoomCode   = null;
@@ -26,45 +28,92 @@ const pvpXLabel    = document.getElementById('pvp-x-label');
 const pvpOLabel    = document.getElementById('pvp-o-label');
 const leaveBtn     = document.getElementById('pvp-leave-btn');
 
-// ---- Create room ----
-createBtn.addEventListener('click', () => {
-  socket.emit('create_room', {});
+// ---- Send helper ----
+function send(data) {
+  if (socket.readyState === WebSocket.OPEN) {
+    socket.send(JSON.stringify(data));
+  }
+}
+
+// ---- WebSocket open ----
+socket.addEventListener('open', () => {
+  console.log('WebSocket connected');
 });
 
-socket.on('room_created', data => {
-  mySymbol   = data.symbol;   // 'X'
-  myRoomCode = data.room_code;
-  roomDisplay.textContent = data.room_code;
-  roomInfo.classList.remove('hidden');
+socket.addEventListener('error', (e) => {
+  console.error('WebSocket error', e);
+  alert('Connection error. Please refresh the page.');
+});
+
+// ---- Receive messages ----
+socket.addEventListener('message', (event) => {
+  const msg = JSON.parse(event.data);
+
+  if (msg.type === 'room_created') {
+    mySymbol   = msg.symbol;
+    myRoomCode = msg.room_code;
+    roomDisplay.textContent = msg.room_code;
+    roomInfo.classList.remove('hidden');
+
+  } else if (msg.type === 'room_joined') {
+    mySymbol   = msg.symbol;
+    myRoomCode = msg.room_code;
+
+  } else if (msg.type === 'game_start') {
+    pvpBoard    = msg.board;
+    pvpGameOver = false;
+    const players = msg.players;
+
+    pvpXLabel.textContent = `✖ ${players['X'] || 'X'}`;
+    pvpOLabel.textContent = `⭕ ${players['O'] || 'O'}`;
+
+    myTurn = (msg.turn === mySymbol);
+    pvpStatus.textContent = myTurn ? 'Your turn!' : "Opponent's turn…";
+
+    lobby.classList.add('hidden');
+    gamePanel.classList.remove('hidden');
+    renderPvPBoard(pvpBoard);
+
+  } else if (msg.type === 'board_update') {
+    pvpBoard = msg.board;
+    renderPvPBoard(pvpBoard);
+
+    if (msg.game_over) {
+      pvpGameOver = true;
+      myTurn = false;
+      if (msg.result === 'draw') {
+        pvpStatus.textContent = '🤝 Draw!';
+      } else if (msg.winner_symbol === mySymbol) {
+        pvpStatus.textContent = '🎉 You win!';
+      } else {
+        pvpStatus.textContent = '😔 Opponent wins!';
+      }
+      highlightWinningLine(pvpBoard, pvpCells);
+    } else {
+      myTurn = (msg.turn === mySymbol);
+      pvpStatus.textContent = myTurn ? 'Your turn!' : "Opponent's turn…";
+    }
+
+  } else if (msg.type === 'opponent_disconnected') {
+    pvpStatus.textContent = '⚠️ Opponent disconnected. Game ended.';
+    pvpGameOver = true;
+    myTurn = false;
+
+  } else if (msg.type === 'error') {
+    alert(msg.message || 'An error occurred');
+  }
+});
+
+// ---- Create room ----
+createBtn.addEventListener('click', () => {
+  send({ type: 'create_room' });
 });
 
 // ---- Join room ----
 joinBtn.addEventListener('click', () => {
   const code = codeInput.value.trim().toUpperCase();
   if (!code) return;
-  socket.emit('join_room_pvp', { room_code: code });
-});
-
-socket.on('room_joined', data => {
-  mySymbol   = data.symbol;   // 'O'
-  myRoomCode = data.room_code;
-});
-
-// ---- Game start ----
-socket.on('game_start', data => {
-  pvpBoard    = data.board;
-  pvpGameOver = false;
-  const players = data.players;
-
-  pvpXLabel.textContent = `✖ ${players['X'] || 'X'}`;
-  pvpOLabel.textContent = `⭕ ${players['O'] || 'O'}`;
-
-  myTurn = (data.turn === mySymbol);
-  pvpStatus.textContent = myTurn ? 'Your turn!' : "Opponent's turn…";
-
-  lobby.classList.add('hidden');
-  gamePanel.classList.remove('hidden');
-  renderPvPBoard(pvpBoard);
+  send({ type: 'join_room', room_code: code });
 });
 
 // ---- Cell click ----
@@ -73,44 +122,13 @@ pvpCells.forEach(cell => {
     if (!myTurn || pvpGameOver) return;
     const idx = parseInt(cell.dataset.index);
     if (pvpBoard[idx] !== null) return;
-    socket.emit('pvp_move', { room_code: myRoomCode, position: idx });
+    send({ type: 'pvp_move', position: idx });
   });
-});
-
-// ---- Board update ----
-socket.on('board_update', data => {
-  pvpBoard = data.board;
-  renderPvPBoard(pvpBoard);
-
-  if (data.game_over) {
-    pvpGameOver = true;
-    myTurn = false;
-    if (data.result === 'draw') {
-      pvpStatus.textContent = '🤝 Draw!';
-    } else if (data.winner_symbol === mySymbol) {
-      pvpStatus.textContent = '🎉 You win!';
-    } else {
-      pvpStatus.textContent = '😔 Opponent wins!';
-    }
-    highlightWinningLine(pvpBoard, pvpCells);
-  } else {
-    myTurn = (data.turn === mySymbol);
-    pvpStatus.textContent = myTurn ? 'Your turn!' : "Opponent's turn…";
-  }
-});
-
-socket.on('opponent_disconnected', () => {
-  pvpStatus.textContent = '⚠️ Opponent disconnected. Game ended.';
-  pvpGameOver = true;
-  myTurn = false;
-});
-
-socket.on('error', data => {
-  alert(data.message || 'An error occurred');
 });
 
 // ---- Leave ----
 leaveBtn.addEventListener('click', () => {
+  socket.close();
   location.reload();
 });
 
